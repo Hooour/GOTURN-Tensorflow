@@ -8,7 +8,7 @@ import tensorflow as tf
 from goturn_config import cfg
 
 from PIL import Image
-
+import time
 from model import GOTURNModel
 
 #data pipeline
@@ -55,30 +55,34 @@ def data_pipeline(train_file, batch_size):
 	target_batch, search_batch, label_batch = tf.train.shuffle_batch([target_img, search_img, label],
 													batch_size=batch_size, capacity=capacity,
 													min_after_dequeue = min_after_dequeue, 
-													num_threads=8)
+													num_threads=4)
 	return target_batch, search_batch, label_batch
 
 
 with tf.Session() as sess:
 	target_batch, search_batch, label_batch = data_pipeline(cfg.TRAIN_FILE, cfg.BATCH_SIZE)
-	init_op = tf.global_variables_initializer()
+
 	model = GOTURNModel(cfg)
 	model.build(True)
 
 	coord = tf.train.Coordinator()
 	threads = tf.train.start_queue_runners(coord=coord)
-
+	
+	
+	init_op = tf.global_variables_initializer()
 	sess.run(init_op)
+	start = time.time()
 	for i in range(200):
+		print "Iter: ",i
 		target_data, search_data, label_data = sess.run([target_batch, search_batch, label_batch])
-		feed_dict = {target_patch: target_data, search_patch: search_data, labels:label_batch}
+		feed_dict = {model.target_patch: target_data, model.search_patch: search_data, model.labels:label_data}
 		sess.run(model.train_op, feed_dict=feed_dict)
 
 	
 	coord.request_stop()
 	coord.join(threads)
-
-	#return target_img, search_img, label
+	eclipsed = time.time() - start
+	print "time spend: ",eclipsed	
 
 
 

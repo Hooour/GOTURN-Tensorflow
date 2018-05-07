@@ -60,20 +60,18 @@ class GOTURNModel:
 		net = tf.concat([net_t, net_s], axis=1)
 
 		#fc6
-		net = tf.layers.flatten(net)
+		net = tf.contrib.layers.flatten(net)
 		net = slim.fully_connected(net, 4096, biases_initializer=tf.ones_initializer(), trainable=train)
 		net = tf.nn.relu(net)
 		net = slim.dropout(net, 0.5, is_training=train)
 
 		#fc7
-		net = tf.layers.flatten(net)
 		net = slim.fully_connected(net, 4096, biases_initializer=tf.ones_initializer(), trainable=train)
 		net = tf.nn.relu(net)
 		net = slim.dropout(net, 0.5, is_training=train)
 
 
 		#fc7-2
-		net = tf.layers.flatten(net)
 		net = slim.fully_connected(net, 4096, biases_initializer=tf.ones_initializer(), trainable=train)
 		net = tf.nn.relu(net)
 		net = slim.dropout(net, 0.5, is_training=train)
